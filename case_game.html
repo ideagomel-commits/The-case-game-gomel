@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Case Game — Гомель: город твоих идей</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #2e7d32;
+    --green-light: #43a047;
+    --green-pale: #e8f5e9;
+    --grey: #546e7a;
+    --grey-light: #eceff1;
+    --white: #fff;
+    --text: #263238;
+    --accent: #ff8f00;
+    --shadow: 0 4px 24px rgba(0,0,0,.12);
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #e3f2fd 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--green) 0%, var(--green-light) 100%);
+    color: #fff;
+    text-align: center;
+    padding: 28px 20px 22px;
+    box-shadow: 0 2px 12px rgba(46,125,50,.3);
+  }
+  header h1 { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 900; letter-spacing: 1px; }
+  header p { font-size: .9rem; opacity: .88; margin-top: 4px; }
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+    letter-spacing: .5px;
+  }
+
+  main { max-width: 700px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* Card */
+  .card {
+    background: var(--white);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeIn .4s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:none; } }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+    padding: 22px 24px 18px;
+    color: #fff;
+  }
+  .case-num { font-size: .75rem; font-weight: 500; opacity: .8; text-transform: uppercase; letter-spacing: 1px; }
+  .case-icon { font-size: 2.6rem; line-height: 1; margin: 6px 0 4px; }
+  .case-title { font-size: 1.25rem; font-weight: 700; }
+  .case-location { font-size: .82rem; opacity: .85; margin-top: 3px; }
+
+  .card-body { padding: 20px 24px; }
+
+  .problem-block {
+    background: #fff3e0;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+  }
+  .problem-block .label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--accent); }
+  .problem-block p { font-size: .92rem; margin-top: 4px; color: var(--text); line-height: 1.5; }
+
+  label.field-label { font-size: .85rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 8px; }
+  textarea {
+    width: 100%;
+    border: 2px solid #cfd8dc;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Roboto', sans-serif;
+    font-size: .95rem;
+    resize: vertical;
+    min-height: 100px;
+    transition: border .2s;
+    color: var(--text);
+  }
+  textarea:focus { outline: none; border-color: var(--green-light); }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  button {
+    font-family: 'Roboto', sans-serif;
+    font-size: .9rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 22px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  button:active { transform: scale(.97); }
+  .btn-primary { background: var(--green); color: #fff; box-shadow: 0 3px 10px rgba(46,125,50,.35); }
+  .btn-primary:hover { background: var(--green-light); box-shadow: 0 4px 14px rgba(46,125,50,.45); }
+  .btn-secondary { background: var(--grey-light); color: var(--grey); }
+  .btn-secondary:hover { background: #cfd8dc; }
+  .btn-accent { background: var(--accent); color: #fff; box-shadow: 0 3px 10px rgba(255,143,0,.35); }
+  .btn-accent:hover { filter: brightness(1.08); }
+
+  /* Results */
+  #results { margin-top: 22px; animation: fadeIn .4s ease; display: none; }
+  .scores-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+  .score-card {
+    background: var(--grey-light);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .score-card .sc-icon { font-size: 1.6rem; }
+  .score-card .sc-label { font-size: .7rem; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .4px; margin: 4px 0; }
+  .score-card .sc-val { font-size: 1.6rem; font-weight: 900; }
+  .score-bar { height: 6px; border-radius: 4px; background: #cfd8dc; margin-top: 6px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+  .total-block {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .total-score { font-size: 2.8rem; font-weight: 900; line-height: 1; }
+  .total-label { font-size: .75rem; opacity: .8; text-transform: uppercase; letter-spacing: .5px; }
+  .verdict { font-size: 1.05rem; font-weight: 700; }
+
+  .comment-block {
+    background: var(--green-pale);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--green);
+  }
+  .comment-block .exp-label { font-size: .72rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .comment-block p { font-size: .9rem; line-height: 1.6; color: var(--text); }
+
+  .progress-bar-container { margin-bottom: 18px; }
+  .prog-label { font-size: .8rem; color: var(--grey); margin-bottom: 5px; display: flex; justify-content: space-between; }
+  .prog-bar { height: 8px; background: #cfd8dc; border-radius: 6px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 6px; background: var(--green); transition: width .8s .1s cubic-bezier(.4,0,.2,1); }
+
+  footer { text-align: center; color: var(--grey); font-size: .78rem; padding: 16px; }
+
+  @media(max-width:480px){
+    .scores-grid { grid-template-columns: 1fr 1fr; }
+    .total-block { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏙️ The Case Game</h1>
+  <p>Реши городскую проблему умно и с минимальными затратами</p>
+  <span class="badge">Гомель — город твоих идей</span>
+</header>
+
+<main>
+  <div class="card" id="gameCard">
+    <div class="card-header">
+      <div class="case-num" id="caseNum">Кейс #1 из 10</div>
+      <div class="case-icon" id="caseIcon">🚧</div>
+      <div class="case-title" id="caseTitle">Загрузка...</div>
+      <div class="case-location" id="caseLocation">📍 Гомель</div>
+    </div>
+    <div class="card-body">
+      <div class="problem-block">
+        <div class="label">⚠️ Проблема</div>
+        <p id="caseDesc"></p>
+      </div>
+
+      <label class="field-label" for="ideaInput">💡 Твоя идея решения</label>
+      <textarea id="ideaInput" placeholder="Опиши своё решение: как исправить проблему с минимальными затратами и максимальной пользой для города..."></textarea>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="evaluateIdea()">⚖️ Оценить идею</button>
+        <button class="btn-secondary" onclick="nextCase()">🔀 Случайное задание</button>
+      </div>
+
+      <div id="results">
+        <hr style="border:none;border-top:1px solid #eceff1;margin:20px 0 16px">
+        <div class="scores-grid">
+          <div class="score-card">
+            <div class="sc-icon">💰</div>
+            <div class="sc-label">Бюджетность</div>
+            <div class="sc-val" id="sc1" style="color:#2e7d32">—</div>
+            <div class="score-bar"><div class="score-bar-fill" id="bar1" style="width:0%;background:#2e7d32"></div></div>
+          </div>
+          <div class="score-card">
+            <div class="sc-icon">🎨</div>
+            <div class="sc-label">Креативность</div>
+            <div class="sc-val" id="sc2" style="color:#1565c0">—</div>
+            <div class="score-bar"><div class="score-bar-fill" id="bar2" style="width:0%;background:#1565c0"></div></div>
+          </div>
+          <div class="score-card">
+            <div class="sc-icon">🌍</div>
+            <div class="sc-label">Польза</div>
+            <div class="sc-val" id="sc3" style="color:#e65100">—</div>
+            <div class="score-bar"><div class="score-bar-fill" id="bar3" style="width:0%;background:#e65100"></div></div>
+          </div>
+        </div>
+
+        <div class="total-block">
+          <div>
+            <div class="total-label">Итого баллов</div>
+            <div class="total-score" id="totalScore">0</div>
+            <div style="font-size:.75rem;opacity:.7">из 30</div>
+          </div>
+          <div>
+            <div class="verdict" id="verdictText"></div>
+          </div>
+        </div>
+
+        <div class="comment-block">
+          <div class="exp-label">🎓 Эксперт конкурса</div>
+          <p id="expertComment"></p>
+        </div>
+
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn-accent" onclick="nextCase()">➡️ Следующее задание</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2025 The Case Game · Конкурс «Гомель — город твоих идей»</footer>
+
+<script>
+const cases = [
+  {
+    id: 1, icon: "🚗",
+    title: "Выбоина на ул. Советской",
+    location: "ул. Советская, возле автобусной остановки",
+    desc: "Огромная выбоина у остановки: машины буксуют, пешеходы спотыкаются, дождь превращает яму в лужу.",
+    type: "road"
+  },
+  {
+    id: 2, icon: "🌳",
+    title: "Заброшенный сквер им. Кирова",
+    location: "Сквер им. Кирова, центр города",
+    desc: "Скамейки сломаны или отсутствуют, освещения нет, вечером в сквере темно и страшно гулять с детьми.",
+    type: "park"
+  },
+  {
+    id: 3, icon: "🛝",
+    title: "Ржавая детская площадка",
+    location: "Двор на пр. Юбилейном",
+    desc: "Качели ржавые и опасные, песочница засорена мусором, покрытие под горкой разбито — дети рискуют получить травму.",
+    type: "playground"
+  },
+  {
+    id: 4, icon: "🚙",
+    title: "Хаотичная парковка у Ледового дворца",
+    location: "Территория у Ледового дворца",
+    desc: "Водители паркуются прямо на газонах, уничтожая зелень. Платных мест не хватает, пешеходам опасно.",
+    type: "parking"
+  },
+  {
+    id: 5, icon: "🚌",
+    title: "Остановка без навеса «Гомель-Парк»",
+    location: "Остановка «Гомель-Парк»",
+    desc: "Навес от дождя отсутствует, кнопка вызова для маломобильных не работает, пассажиры мокнут под дождём.",
+    type: "stop"
+  },
+  {
+    id: 6, icon: "🗑️",
+    title: "Переполненные мусорные баки",
+    location: "Двор на пр. Октября",
+    desc: "Контейнеры переполнены и не вывозятся вовремя, вокруг разбросаны отходы — запах, мухи, крысы.",
+    type: "garbage"
+  },
+  {
+    id: 7, icon: "♿",
+    title: "Переход без пандуса у цирка",
+    location: "Пешеходный переход у цирка",
+    desc: "Бордюр очень высокий, нет пандуса для колясок и людей с инвалидностью. Мамы с колясками вынуждены объезжать квартал.",
+    type: "access"
+  },
+  {
+    id: 8, icon: "🌿",
+    title: "Заросший пустырь между школой и больницей",
+    location: "Между школой №12 и горбольницей",
+    desc: "Пустырь зарос бурьяном выше роста человека, тропинок нет — люди протаптывают опасные пути через заросли.",
+    type: "land"
+  },
+  {
+    id: 9, icon: "💡",
+    title: "Тёмный переулок у вокзала",
+    location: "Переулок около железнодорожного вокзала",
+    desc: "Фонари разбиты, переулок не освещён. По ночам здесь собираются подростки, прохожие боятся идти этим путём.",
+    type: "light"
+  },
+  {
+    id: 10, icon: "🚻",
+    title: "Разрушенный туалет в парке «Фестивальный»",
+    location: "Парк «Фестивальный»",
+    desc: "Общественный туалет закрыт на замок и пришёл в негодность. Посетители парка вынуждены прятаться за кустами.",
+    type: "toilet"
+  }
+];
+
+// --- Keyword scoring engine ---
+const keywords = {
+  cheap: ["волонт","субботник","своими руками","бесплатно","граждан","жители","школьник","студент","краска","мел","трафарет","табличка","объявлен","собрать","помочь","попросить","инициатив","своими сил","сообщество","НКО","благотворит","спонсор","донат","QR","флешмоб"],
+  expensive: ["построить","снести","капиталь","реконструк","полностью заменить","новый асфальт","залить бетон","капремонт","реновац","снос","возвед","строитель","завод","поставить новый","установить новый","полная замен"],
+  creative: ["арт","граффити","мурал","клумба","цветок","сад","огород","инсталляц","фото","квест","игра","праздник","музык","карта","QR","навигац","лавочк","скворечник","белл","фонарь","гирлянд","скейт","батут","плакат","интеракт","флешмоб","конкурс","фестивал","велосипед","вертикальн","экоарт","нейминг","брендир","туристич"],
+  useful: ["безопасн","доступн","пандус","люди","горожан","семь","дети","пожилые","инвалид","коляск","осветить","освещен","убрать мусор","чист","вывезти","навес","скамей","тропин","переход","разметка","знак","табло","расписан","починить","залатать","засыпать","заасфальтир","поставить лавоч","туалет","санузел","урн","бак","контейнер","свет","фонар","зелен","дерев","трав","ограждение","парковочн","разметить"],
+  lowEffort: ["объявлен","призыв","попросить","акци","написать в","жалоб","петиц","ничего не делат"],
+  highEffort: ["снести","построить","заново","капитальн","полностью"]
+};
+
+function countKW(text, arr) {
+  const t = text.toLowerCase();
+  return arr.reduce((n, kw) => n + (t.includes(kw) ? 1 : 0), 0);
+}
+
+function clamp(v, min, max) { return Math.min(max, Math.max(min, Math.round(v))); }
+
+function scoreIdea(text, caseType) {
+  const t = text.toLowerCase().trim();
+  if (t.length < 10) return null;
+
+  const cheapHits   = countKW(t, keywords.cheap);
+  const expHits     = countKW(t, keywords.expensive);
+  const creativeHits= countKW(t, keywords.creative);
+  const usefulHits  = countKW(t, keywords.useful);
+  const lowEff      = countKW(t, keywords.lowEffort);
+  const highEff     = countKW(t, keywords.highEffort);
+
+  // Length bonus: longer = slightly more thought
+  const lenBonus = Math.min(2, Math.floor(t.length / 60));
+
+  // Budget score: starts at 6, +cheap, -expensive
+  let budget = 6 + cheapHits * 1.2 - expHits * 2 + lenBonus * 0.3 - highEff * 1.5;
+  budget = clamp(budget, 1, 10);
+
+  // Creativity score: starts at 4
+  let creativity = 4 + creativeHits * 1.5 + cheapHits * 0.4 + lenBonus * 0.5 - lowEff * 0.5;
+  creativity = clamp(creativity, 1, 10);
+
+  // Useful score: starts at 5
+  let useful = 5 + usefulHits * 1.3 - lowEff * 1.5 + lenBonus * 0.4;
+  // Case-specific boosts
+  if (caseType === "road"       && /ям|щебен|гравий|асфальт|латать|заплат|засыпат/.test(t)) useful += 2;
+  if (caseType === "playground" && /краска|покрас|ремонт|новый|замен|убрать|чист/.test(t)) useful += 2;
+  if (caseType === "park"       && /освещ|фонар|лавоч|скамей/.test(t)) useful += 2;
+  if (caseType === "parking"    && /разметка|знак|ограждени|шлагбаум|парковочн/.test(t)) useful += 2;
+  if (caseType === "stop"       && /навес|укрыти|крыша|тент|кнопка|ремонт/.test(t)) useful += 2;
+  if (caseType === "garbage"    && /контейнер|вывоз|замен|раздельн|сортиров|урн/.test(t)) useful += 2;
+  if (caseType === "access"     && /пандус|бордюр|скос|срезать|понизить|колясоч/.test(t)) useful += 3;
+  if (caseType === "land"       && /тропин|скосить|расчист|посадить|дорожк/.test(t)) useful += 2;
+  if (caseType === "light"      && /фонар|освещ|свет|лед|датчик|LED/.test(t)) useful += 2;
+  if (caseType === "toilet"     && /туалет|санузел|открыть|ключ|биотуал|временн/.test(t)) useful += 2;
+  useful = clamp(useful, 1, 10);
+
+  return { budget, creativity, useful, total: budget + creativity + useful };
+}
+
+function verdictText(total) {
+  if (total >= 27) return "🏆 Блестящее решение!";
+  if (total >= 22) return "🥇 Отличная идея!";
+  if (total >= 16) return "👍 Хорошая попытка";
+  if (total >= 10) return "🤔 Есть над чем подумать";
+  return "💡 Попробуй ещё раз!";
+}
+
+function expertComment(scores, caseType) {
+  const { budget, creativity, useful, total } = scores;
+  const parts = [];
+
+  if (budget >= 8) parts.push("Решение действительно малозатратно — это именно то, что ценится в конкурсе.");
+  else if (budget <= 4) parts.push("Реализация потребует значительных ресурсов, что снижает шансы на быстрое внедрение.");
+  else parts.push("По бюджетности идея в разумных пределах.");
+
+  if (creativity >= 8) parts.push("Очень нестандартный подход — жюри оценит оригинальность!");
+  else if (creativity <= 4) parts.push("Решение довольно типичное; постарайся добавить необычную «изюминку».");
+  else parts.push("Умеренная креативность — идея рабочая, но можно добавить оригинальности.");
+
+  if (useful >= 8) parts.push("Польза для горожан очевидна и ощутима.");
+  else if (useful <= 4) parts.push("Практическая польза невысокая — подумай, как напрямую улучшить жизнь людей.");
+  else parts.push("Польза есть, но можно сделать решение ещё более ощутимым для жителей.");
+
+  if (total >= 24) parts.push("Такая идея могла бы украсить реальный план развития города!");
+  else if (total < 12) parts.push("Попробуй переосмыслить идею с упором на низкую стоимость и конкретную помощь людям.");
+
+  return parts.join(" ");
+}
+
+// --- State ---
+let currentCase = null;
+let usedCases = [];
+
+function getRandomCase() {
+  if (usedCases.length === cases.length) usedCases = [];
+  const available = cases.filter(c => !usedCases.includes(c.id));
+  const c = available[Math.floor(Math.random() * available.length)];
+  usedCases.push(c.id);
+  return c;
+}
+
+function loadCase(c) {
+  currentCase = c;
+  document.getElementById('caseNum').textContent = `Кейс #${c.id} из ${cases.length}`;
+  document.getElementById('caseIcon').textContent = c.icon;
+  document.getElementById('caseTitle').textContent = c.title;
+  document.getElementById('caseLocation').textContent = `📍 ${c.location}`;
+  document.getElementById('caseDesc').textContent = c.desc;
+  document.getElementById('ideaInput').value = '';
+  document.getElementById('results').style.display = 'none';
+  // re-trigger animation
+  const card = document.getElementById('gameCard');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = '';
+}
+
+function nextCase() {
+  loadCase(getRandomCase());
+}
+
+function setBar(id, val) {
+  document.getElementById(id).style.width = (val * 10) + '%';
+}
+
+function evaluateIdea() {
+  const text = document.getElementById('ideaInput').value.trim();
+  if (text.length < 10) {
+    alert('Пожалуйста, введи более подробную идею (минимум 10 символов)!');
+    return;
+  }
+  const scores = scoreIdea(text, currentCase.type);
+
+  document.getElementById('sc1').textContent = scores.budget;
+  document.getElementById('sc2').textContent = scores.creativity;
+  document.getElementById('sc3').textContent = scores.useful;
+  document.getElementById('totalScore').textContent = scores.total;
+  document.getElementById('verdictText').textContent = verdictText(scores.total);
+  document.getElementById('expertComment').textContent = expertComment(scores, currentCase.type);
+
+  const res = document.getElementById('results');
+  res.style.display = 'block';
+
+  // Animate bars after display
+  setTimeout(() => {
+    setBar('bar1', scores.budget);
+    setBar('bar2', scores.creativity);
+    setBar('bar3', scores.useful);
+  }, 50);
+
+  res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Init
+loadCase(getRandomCase());
+</script>
+</body>
+</html>
